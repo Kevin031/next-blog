@@ -40,9 +40,9 @@ jobs:
           # 压缩镜像层以减少推送时间
           docker image prune -f
 
-      - name: Login to Tencent Cloud
+      - name: Login to Aliyun
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin ccr.ccs.tencentyun.com
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com
 
       - name: Push Docker Image with retry
         run: |
