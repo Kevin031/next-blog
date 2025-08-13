@@ -31,8 +31,7 @@ jobs:
           echo "DB_PORT=3306" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWD=${{ secrets.DB_PASSWD }}" >> .env
-          echo "DB_DATABASE=blog >> .env
-          echo "NODE_ENV=production" >> .env
+          echo "DB_DATABASE=blog" >> .env
 
       - name: Build Docker Image
         run: docker build -t $IMAGE_NAME .
