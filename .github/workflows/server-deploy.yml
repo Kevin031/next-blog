@@ -68,4 +68,4 @@ jobs:
             docker pull $IMAGE_NAME
             docker ps -q --filter "name=blog-server" | grep -q . && docker stop blog-server || echo "Container blog-server is not running"
             docker ps -a -q --filter "name=blog-server" | grep -q . && docker rm blog-server || echo "Container blog-server does not exist"
-            docker run -d --name blog-server -p 3000:20238 $IMAGE_NAME
+            docker run -d --name blog-server -p 20238:3000 $IMAGE_NAME
