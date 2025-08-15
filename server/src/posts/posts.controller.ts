@@ -13,6 +13,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Public } from '../common/public.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -26,12 +27,14 @@ export class PostsController {
 
   @ApiOperation({ summary: '获取所有文章' })
   @Get()
+  @Public()
   findAll(@Query() query): Promise<PostsRo> {
     return this.postsService.findAll(query);
   }
 
   @ApiOperation({ summary: '获取指定id的文章' })
   @Get(':id')
+  @Public()
   async findById(@Param('id') id: string) {
     return await this.postsService.findById(+id);
   }

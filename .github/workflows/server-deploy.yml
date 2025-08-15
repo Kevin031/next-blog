@@ -32,6 +32,8 @@ jobs:
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWD=${{ secrets.DB_PASSWD }}" >> .env
           echo "DB_DATABASE=blog" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
 
       - name: Build Docker Image
         run: |

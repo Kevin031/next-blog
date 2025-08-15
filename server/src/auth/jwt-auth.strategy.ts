@@ -1,0 +1,27 @@
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { jwtConstants } from '../common/constants';
+
+export interface JwtPayload {
+  username: string;
+}
+
+@Injectable()
+// 验证请求头中的 token
+export default class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: jwtConstants.secret as string,
+    });
+  }
+
+  async validate(payload: JwtPayload) {
+    const { username } = payload;
+    return {
+      username,
+    };
+  }
+}
