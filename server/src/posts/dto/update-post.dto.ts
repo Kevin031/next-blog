@@ -11,4 +11,7 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
 
   @ApiProperty({ description: '封面图片' })
   readonly cover_url: string;
+
+  @ApiProperty({ description: '是否可见' })
+  readonly visible: boolean;
 }

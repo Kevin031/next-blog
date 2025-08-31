@@ -24,7 +24,7 @@ export class HttpExceptionFilter<T> implements ExceptionFilter {
     const errorResponse = {
       data: {},
       message: validMessage || message,
-      code: -1,
+      code: exceptionResponse.statusCode || -1,
     };
 
     response.status(status);

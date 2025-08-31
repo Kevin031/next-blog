@@ -9,7 +9,10 @@ export class PostEntity {
   title: string;
 
   @Column({ length: 20 })
-  author: string;
+  author?: string;
+
+  @Column({ default: false })
+  visible: boolean;
 
   @Column('text')
   content: string;

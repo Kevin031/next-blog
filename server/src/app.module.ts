@@ -10,7 +10,10 @@ import { PostEntity } from './posts/entities/post.entity';
 import { RedisService } from './redis/redis.service';
 import { AuthModule } from './auth/auth.module';
 import { AuthEntity } from './auth/entities/auth.entity';
+import { UserEntity } from './user/entities/user.entity';
 import { JwtAuthGuard } from './auth/jwt-auth.grard';
+import { UserController } from './user/user.controller';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -23,7 +26,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.grard';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         type: 'mysql', // 数据库类型
-        entities: [PostEntity, AuthEntity], // 数据表实体，synchronize为true时，自动创建表，生产环境建议关闭
+        entities: [PostEntity, AuthEntity, UserEntity], // 数据表实体，synchronize为true时，自动创建表，生产环境建议关闭
         host: configService.get('DB_HOST'), // 主机，默认为localhost
         port: configService.get<number>('DB_PORT'), // 端口号
         username: configService.get('DB_USER'), // 用户名
@@ -35,6 +38,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.grard';
     }),
     PostsModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [

@@ -31,7 +31,8 @@ FROM oven/bun:1-alpine AS production
 WORKDIR /app
 
 # 只复制必要的生产文件，减少镜像体积
-COPY --from=builder /app/.env ./
+# 改成从服务器读取
+# COPY --from=builder /app/.env ./
 COPY --from=builder /app/dist ./dist
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./

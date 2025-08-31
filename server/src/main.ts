@@ -26,6 +26,8 @@ async function bootstrap() {
   // 注册全局成功拦截器
   app.useGlobalInterceptors(new TransformInterceptor());
 
+  app.enableCors();
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

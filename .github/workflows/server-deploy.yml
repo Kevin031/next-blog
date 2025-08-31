@@ -24,16 +24,16 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Create .env.prod file from GitHub Secrets
-        run: |
-          echo "NODE_ENV=production" >> .env
-          echo "DB_HOST=${{ secrets.SERVER_HOST }}" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-          echo "DB_PASSWD=${{ secrets.DB_PASSWD }}" >> .env
-          echo "DB_DATABASE=blog" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+      # - name: Create .env.prod file from GitHub Secrets
+      #   run: |
+      #     echo "NODE_ENV=production" >> .env
+      #     echo "DB_HOST=${{ secrets.SERVER_HOST }}" >> .env
+      #     echo "DB_PORT=3306" >> .env
+      #     echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+      #     echo "DB_PASSWD=${{ secrets.DB_PASSWD }}" >> .env
+      #     echo "DB_DATABASE=blog" >> .env
+      #     echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+      #     echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
 
       - name: Build Docker Image
         run: |
@@ -70,4 +70,4 @@ jobs:
             docker pull $IMAGE_NAME
             docker ps -q --filter "name=blog-server" | grep -q . && docker stop blog-server || echo "Container blog-server is not running"
             docker ps -a -q --filter "name=blog-server" | grep -q . && docker rm blog-server || echo "Container blog-server does not exist"
-            docker run -d --name blog-server -p 20238:3000 $IMAGE_NAME
+            docker run -d --name blog-server -v /www/wwwroot/blog-server.kevinlau.cn/.env:/app/.env -p 20238:3000 $IMAGE_NAME

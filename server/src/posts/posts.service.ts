@@ -19,13 +19,19 @@ export class PostsService {
     private readonly postRepository: Repository<PostEntity>,
   ) {}
 
-  async create(post: Partial<PostEntity>): Promise<PostEntity> {
+  async create(
+    post: Partial<PostEntity>,
+    username: string,
+  ): Promise<PostEntity> {
     const { title } = post;
     const doc = await this.postRepository.findOne({ where: { title } });
     if (doc) {
       throw new HttpException('文章已存在', 401);
     }
-    return await this.postRepository.save(post);
+    return await this.postRepository.save({
+      ...post,
+      author: username,
+    });
   }
 
   async findAll({
