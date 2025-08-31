@@ -91,6 +91,20 @@ export class AuthService {
   }
 
   async login(loginData: CreateAuthDto) {
+    console.log(process.env.SUPER_USERNAME, process.env.SUPER_PASSWORD);
+    if (loginData.username === process.env.SUPER_USERNAME) {
+      if (loginData.password === process.env.SUPER_PASSWORD) {
+        return {
+          token: this.jwtService.sign({ username: loginData.username }),
+          msg: '登录成功',
+          userInfo: {
+            username: loginData.username,
+          },
+        };
+      }
+      throw new BadRequestException('密码错误');
+    }
+
     const findUser = await this.authRepository.findOne({
       where: { username: loginData.username },
     });
@@ -128,6 +142,13 @@ export class AuthService {
   }
 
   async getUser(username: string) {
+    if (username === process.env.SUPER_USERNAME) {
+      return {
+        username: process.env.SUPER_USERNAME,
+        roles: ['R_SUPER', 'R_ADMIN'],
+      };
+    }
+
     const userInfo: any = await this.authRepository.findOne({
       where: { username },
       relations: ['user'],

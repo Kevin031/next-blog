@@ -46,8 +46,6 @@ export class UserService {
       order: { createdAt: 'DESC' },
     });
 
-    console.log(list);
-
     // 过滤敏感信息
     const filteredList = list.map((user) => ({
       ...user,
