@@ -1,0 +1,41 @@
+name: Admin Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-web
+    steps:
+      # checkout
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Build Production Pack
+        run: |
+          bun install
+          npm run build
+
+      # 资源直接部署到服务器
+      # 部署到 master 分支的服务器路径
+      - name: Deploy to Server Production Path
+        if: github.ref == 'refs/heads/master'
+        uses: easingthemes/ssh-deploy@v2.1.6
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: "dist/"
+          REMOTE_HOST: ${{ secrets.HOST }}
+          REMOTE_USER: "root"
+          TARGET: "/www/wwwroot/admin-web.kevinlau.cn/"
+          EXCLUDE: "/node_modules/"
