@@ -1,6 +1,8 @@
 import { getTabConfig } from '@/utils/ui'
+import { storeToRefs } from 'pinia'
 import { useSettingStore } from '@/store/modules/setting'
 import { useMenuStore } from '@/store/modules/menu'
+import { computed, watchEffect } from 'vue'
 
 // 通用函数
 export function useCommon() {
