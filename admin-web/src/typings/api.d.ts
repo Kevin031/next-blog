@@ -56,6 +56,10 @@ declare namespace Api {
       username: string
       password: string
     }
+
+    interface SignupResponse {
+      username: string
+    }
   }
 
   /** 用户类型 */
