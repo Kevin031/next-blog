@@ -29,13 +29,12 @@ jobs:
       # 资源直接部署到服务器
       # 部署到 master 分支的服务器路径
       - name: Deploy to Server Production Path
-        if: github.ref == 'refs/heads/master'
         uses: easingthemes/ssh-deploy@v2.1.6
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           ARGS: "-rltgoDzvO"
           SOURCE: "dist/"
-          REMOTE_HOST: ${{ secrets.HOST }}
-          REMOTE_USER: "root"
+          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_USERNAME }}
           TARGET: "/www/wwwroot/admin-web.kevinlau.cn/"
           EXCLUDE: "/node_modules/"
