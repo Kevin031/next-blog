@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main
-    paths: -- 'admin-web/**'
+    paths:
+      - "admin-web/**"
 
 jobs:
   build:
