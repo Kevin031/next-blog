@@ -20,7 +20,6 @@ export default ({ mode }: { mode: string }) => {
   console.log(`🚀 API_URL = ${VITE_API_URL}`)
   console.log(`🚀 VERSION = ${VITE_VERSION}`)
   console.log(`🚀 MODE = ${process.env.NODE_ENV}`, env)
-  process.exit()
 
   return defineConfig({
     define: {
