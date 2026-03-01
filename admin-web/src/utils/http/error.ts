@@ -51,7 +51,8 @@ export class HttpError extends Error {
     return {
       code: this.code,
       message: this.message,
-      data: this.data,
+      // 不记录 data 字段，避免泄露密码等敏感信息
+      // data: this.data,
       timestamp: this.timestamp,
       url: this.url,
       method: this.method,
@@ -109,8 +110,9 @@ export function handleError(error: AxiosError<ErrorResponse>): never {
   const message = statusCode
     ? getErrorMessage(statusCode)
     : errorMessage || $t('httpMsg.requestFailed')
+  // 不传递 error.response.data，避免在日志中泄露敏感信息（如密码）
   throw new HttpError(message, statusCode || ApiStatus.error, {
-    data: error.response.data,
+    // data: error.response.data,
     url: requestConfig?.url,
     method: requestConfig?.method?.toUpperCase()
   })

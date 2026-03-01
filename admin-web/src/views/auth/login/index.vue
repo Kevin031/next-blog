@@ -148,29 +148,34 @@
     roles: string[]
   }
 
-  const accounts = computed<Account[]>(() => [
-    {
-      key: 'super',
-      label: t('login.roles.super'),
-      userName: 'Super',
-      password: '123456',
-      roles: ['R_SUPER']
-    },
-    {
-      key: 'admin',
-      label: t('login.roles.admin'),
-      userName: 'Admin',
-      password: '123456',
-      roles: ['R_ADMIN']
-    },
-    {
-      key: 'user',
-      label: t('login.roles.user'),
-      userName: 'User',
-      password: '123456',
-      roles: ['R_USER']
-    }
-  ])
+  const accounts = computed<Account[]>(() => {
+    // 仅在开发环境显示测试账户
+    if (!import.meta.env.DEV) return []
+
+    return [
+      {
+        key: 'super',
+        label: t('login.roles.super'),
+        userName: import.meta.env.VITE_TEST_SUPER_USER || 'Super',
+        password: import.meta.env.VITE_TEST_SUPER_PASS || '123456',
+        roles: ['R_SUPER']
+      },
+      {
+        key: 'admin',
+        label: t('login.roles.admin'),
+        userName: import.meta.env.VITE_TEST_ADMIN_USER || 'Admin',
+        password: import.meta.env.VITE_TEST_ADMIN_PASS || '123456',
+        roles: ['R_ADMIN']
+      },
+      {
+        key: 'user',
+        label: t('login.roles.user'),
+        userName: import.meta.env.VITE_TEST_USER || 'User',
+        password: import.meta.env.VITE_TEST_USER_PASS || '123456',
+        roles: ['R_USER']
+      }
+    ]
+  })
 
   const settingStore = useSettingStore()
   const { isDark } = storeToRefs(settingStore)

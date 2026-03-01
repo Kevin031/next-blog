@@ -91,25 +91,12 @@ export class AuthService {
   }
 
   async login(loginData: CreateAuthDto) {
-    console.log(process.env.SUPER_USERNAME, process.env.SUPER_PASSWORD);
-    if (loginData.username === process.env.SUPER_USERNAME) {
-      if (loginData.password === process.env.SUPER_PASSWORD) {
-        return {
-          token: this.jwtService.sign({ username: loginData.username }),
-          msg: '登录成功',
-          userInfo: {
-            username: loginData.username,
-          },
-        };
-      }
-      throw new BadRequestException('密码错误');
-    }
-
+    // 从数据库查找用户（包括超级管理员）
     const findUser = await this.authRepository.findOne({
       where: { username: loginData.username },
     });
     if (!findUser) {
-      throw new BadRequestException('用户不存在');
+      throw new BadRequestException('用户名或密码错误');
     }
 
     // 检查账号是否被禁用
@@ -123,7 +110,7 @@ export class AuthService {
       findUser.password,
     );
     if (!compareRes) {
-      throw new BadRequestException('密码错误');
+      throw new BadRequestException('用户名或密码错误');
     }
 
     // 更新最后登录时间
@@ -142,13 +129,6 @@ export class AuthService {
   }
 
   async getUser(username: string) {
-    if (username === process.env.SUPER_USERNAME) {
-      return {
-        username: process.env.SUPER_USERNAME,
-        roles: ['R_SUPER', 'R_ADMIN'],
-      };
-    }
-
     const userInfo: any = await this.authRepository.findOne({
       where: { username },
       relations: ['user'],
@@ -160,7 +140,7 @@ export class AuthService {
 
     return {
       username: userInfo.username,
-      roles: ['R_SUPER', 'R_ADMIN'],
+      roles: userInfo.roles,
       id: userInfo.id,
       email: userInfo.email,
       isActive: userInfo.isActive,

@@ -33,7 +33,7 @@ import { UserModule } from './user/user.module';
         password: configService.get('DB_PASSWD'), // 密码
         database: configService.get('DB_DATABASE'), //数据库名
         timezone: '+08:00', //服务器上配置的时区
-        synchronize: true, //根据实体自动创建数据库表， 生产环境建议关闭
+        synchronize: configService.get('NODE_ENV') !== 'production', // 生产环境关闭自动同步
       }),
     }),
     PostsModule,
