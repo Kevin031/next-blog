@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsArray, IsOptional } from 'class-validator';
 
 export class CreatePostDto {
   @ApiProperty({ description: '文章标题' })
@@ -18,4 +18,9 @@ export class CreatePostDto {
 
   @ApiProperty({ description: '封面图片' })
   readonly cover_url: string;
+
+  @ApiProperty({ description: '标签ID数组', required: false })
+  @IsOptional()
+  @IsArray({ message: '标签ID必须是数组' })
+  readonly tagIds?: number[];
 }

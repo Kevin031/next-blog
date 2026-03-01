@@ -37,17 +37,37 @@ export class PostsController {
   @ApiQuery({
     name: 'page',
     type: Number,
-    required: true,
+    required: false,
+    description: '页码（与 current 二选一）',
   })
   @ApiQuery({
     name: 'pageSize',
     type: Number,
-    required: true,
+    required: false,
+    description: '每页条数（与 size 二选一）',
+  })
+  @ApiQuery({
+    name: 'current',
+    type: Number,
+    required: false,
+    description: '当前页码（与 page 二选一）',
+  })
+  @ApiQuery({
+    name: 'size',
+    type: Number,
+    required: false,
+    description: '每页条数（与 pageSize 二选一）',
+  })
+  @ApiQuery({
+    name: 'tagId',
+    type: Number,
+    required: false,
+    description: '标签ID，用于筛选该标签下的文章',
   })
   @ApiOkResponse({
     description: '成功获取文章列表',
     type: GetPostDto,
-    isArray: true, // 如果是数组需要指定
+    isArray: true,
   })
   @Get()
   @Public()

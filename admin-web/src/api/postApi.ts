@@ -1,7 +1,7 @@
 import request from '@/utils/http'
 
 export class PostService {
-  static getPostList(params: Api.Common.PaginatingSearchParams) {
+  static getPostList(params: Api.Post.PostSearchParams) {
     return request.get<Api.Post.PostListData>({
       url: '/posts',
       params

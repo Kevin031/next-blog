@@ -28,5 +28,8 @@ export enum RoutesAlias {
 
   // 文章管理
   Posts = '/posts/list', // 文章列表
-  PostsEdit = '/posts/edit' // 文章编辑
+  PostsEdit = '/posts/edit', // 文章编辑
+
+  // 标签管理
+  Tags = '/tags/list' // 标签列表
 }

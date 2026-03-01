@@ -115,6 +115,7 @@ declare namespace Api {
       create_time: number
       update_time: number
       visible: boolean
+      tags?: Api.Tag.TagItem[]
     }
 
     /** 文章列表数据 */
@@ -133,12 +134,61 @@ declare namespace Api {
       content: string
       create_time: number
       update_time: number
+      tags?: Api.Tag.TagItem[]
+    }
+
+    /** 文章搜索参数 */
+    type PostSearchParams = Api.Common.PaginatingSearchParams & {
+      tagId?: number
     }
 
     interface PostPatchData {
       title: string
       content: string
       visible: boolean
+      tagIds?: number[]
+    }
+  }
+
+  /** 标签类型 */
+  namespace Tag {
+    /** 标签项 */
+    interface TagItem {
+      id: number
+      name: string
+      count: number
+      createTime: string
+    }
+
+    /** 标签列表数据 */
+    interface TagListData {
+      list: TagItem[]
+      count: number
+      totalPages: number
+      currentPage: number
+    }
+
+    /** 标签详情数据 */
+    interface TagDetailData {
+      id: number
+      name: string
+      count: number
+      createTime: string
+    }
+
+    /** 标签搜索参数 */
+    type TagSearchParams = Api.Common.PaginatingSearchParams & {
+      keyword?: string
+    }
+
+    /** 创建标签数据 */
+    interface TagCreateData {
+      name: string
+    }
+
+    /** 更新标签数据 */
+    interface TagUpdateData {
+      name?: string
     }
   }
 }

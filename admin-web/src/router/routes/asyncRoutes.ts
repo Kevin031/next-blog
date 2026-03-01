@@ -80,6 +80,28 @@ export const asyncRoutes: AppRouteRecord[] = [
     ]
   },
   {
+    path: '/tags',
+    name: 'Tags',
+    component: RoutesAlias.Layout,
+    meta: {
+      title: '标签管理',
+      icon: '&#xe737;',
+      roles: ['R_SUPER', 'R_ADMIN']
+    },
+    children: [
+      {
+        path: 'list',
+        name: 'TagsList',
+        component: RoutesAlias.Tags,
+        meta: {
+          title: '标签列表',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN']
+        }
+      }
+    ]
+  },
+  {
     path: '/system',
     name: 'System',
     component: RoutesAlias.Layout,
