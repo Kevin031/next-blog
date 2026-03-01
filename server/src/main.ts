@@ -31,10 +31,10 @@ function validateEnv() {
   // 验证 JWT_SECRET 强度（已通过上面的检查确保存在）
   const jwtSecret = process.env.JWT_SECRET!;
   if (jwtSecret.length < 32) {
-    throw new Error(
-      '❌ JWT_SECRET 长度必须至少 32 个字符\n' +
+    console.warn(
+      '⚠️  警告: JWT_SECRET 长度不足 32 个字符\n' +
         `当前长度: ${jwtSecret.length}\n` +
-        '建议使用: openssl rand -base64 32 生成强密钥'
+        '建议使用: openssl rand -base64 32 生成强密钥以提高安全性'
     );
   }
 
