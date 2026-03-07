@@ -9,7 +9,27 @@
       "Bash(ssh-keygen:*)",
       "Bash(git remote set-url:*)",
       "Bash(gh auth status:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(bunx:*)",
+      "Bash(ping:*)",
+      "Bash(openspec-cn new:*)",
+      "Bash(openspec-cn status:*)",
+      "Bash(openspec-cn instructions:*)",
+      "Bash(lsof:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(openspec-cn list --json)",
+      "Bash(curl -s http://localhost:3000/posts)",
+      "Bash(curl -s -X POST http://localhost:3000/auth/login -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"Super\"\",\"\"password\"\":\"\"123456\"\"}')",
+      "Bash(curl -s http://localhost:3000/user/list)",
+      "Bash(curl -s -X POST http://localhost:3000/auth/login -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"admin\"\",\"\"password\"\":\"\"admin123456\"\"}')",
+      "Bash(openspec-cn list)",
+      "Bash(pkill -f \"nest start --watch\")",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(npx prettier --write src/components/posts/**/*.vue src/views/posts/edit.vue)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(mkdir -p openspec/specs/article-content-type-management)",
+      "Bash(cp openspec/changes/fix-post-content-type-default/specs/article-content-type-management/spec.md openspec/specs/article-content-type-management/spec.md)"
     ]
   }
 }
