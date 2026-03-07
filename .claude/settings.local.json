@@ -29,7 +29,9 @@
       "Bash(npx prettier --write src/components/posts/**/*.vue src/views/posts/edit.vue)",
       "Bash(npx tsc --noEmit)",
       "Bash(mkdir -p openspec/specs/article-content-type-management)",
-      "Bash(cp openspec/changes/fix-post-content-type-default/specs/article-content-type-management/spec.md openspec/specs/article-content-type-management/spec.md)"
+      "Bash(cp openspec/changes/fix-post-content-type-default/specs/article-content-type-management/spec.md openspec/specs/article-content-type-management/spec.md)",
+      "Bash(git reset --soft HEAD~1)",
+      "Bash(git reset HEAD)"
     ]
   }
 }
