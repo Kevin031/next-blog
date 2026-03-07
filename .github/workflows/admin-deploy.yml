@@ -23,9 +23,12 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Create .env.production
+        run: |
+          echo "VITE_LOCK_ENCRYPT_KEY=${{ secrets.VITE_LOCK_ENCRYPT_KEY }}" >> .env.production
+
       - name: Build Production Pack
         run: |
-          rm -rf .env.development
           bun install
           npm run build
 
