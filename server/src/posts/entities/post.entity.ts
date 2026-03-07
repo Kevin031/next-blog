@@ -24,6 +24,9 @@ export class PostEntity {
   @Column('text')
   content: string;
 
+  @Column({ length: 20, default: 'rich-text' })
+  content_type: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   create_time: Date;
 

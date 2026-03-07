@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsArray, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsArray, IsOptional, IsIn } from 'class-validator';
 
 export class CreatePostDto {
   @ApiProperty({ description: '文章标题' })
@@ -23,4 +23,16 @@ export class CreatePostDto {
   @IsOptional()
   @IsArray({ message: '标签ID必须是数组' })
   readonly tagIds?: number[];
+
+  @ApiProperty({
+    description: '内容格式类型: markdown 或 rich-text',
+    required: false,
+    enum: ['markdown', 'rich-text'],
+    default: 'rich-text',
+  })
+  @IsOptional()
+  @IsIn(['markdown', 'rich-text'], {
+    message: '内容格式类型必须是 markdown 或 rich-text',
+  })
+  readonly content_type: string = 'rich-text';
 }
