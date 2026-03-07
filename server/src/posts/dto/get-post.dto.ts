@@ -27,4 +27,7 @@ export class GetPostDto {
 
   @ApiProperty({ description: 'ID' })
   readonly id: number;
+
+  @ApiProperty({ description: '内容格式类型' })
+  readonly content_type: string;
 }

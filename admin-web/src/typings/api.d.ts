@@ -151,6 +151,7 @@ declare namespace Api {
       update_time: number
       visible: boolean
       tags?: Api.Tag.TagItem[]
+      content_type?: string
     }
 
     /** 文章列表数据 */
@@ -170,11 +171,13 @@ declare namespace Api {
       create_time: number
       update_time: number
       tags?: Api.Tag.TagItem[]
+      content_type?: string
     }
 
     /** 文章搜索参数 */
     type PostSearchParams = Api.Common.PaginatingSearchParams & {
       tagId?: number
+      content_type?: string
     }
 
     interface PostPatchData {
@@ -182,6 +185,7 @@ declare namespace Api {
       content: string
       visible: boolean
       tagIds?: number[]
+      content_type?: string
     }
   }
 

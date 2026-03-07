@@ -156,6 +156,17 @@
             }
           },
           {
+            prop: 'content_type',
+            label: '类型',
+            width: 100,
+            formatter: (row) => {
+              const typeConfig = row.content_type === 'markdown'
+                ? { type: 'primary' as const, text: 'MD' }
+                : { type: 'success' as const, text: '富文本' }
+              return h(ElTag, { type: typeConfig.type, size: 'small' }, () => typeConfig.text)
+            }
+          },
+          {
             prop: 'update_time',
             label: '更新时间',
             width: 180,
