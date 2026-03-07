@@ -8,7 +8,6 @@
       ref="elTableRef"
       v-loading="!!loading"
       v-bind="{ ...$attrs, ...props, height, stripe, border, size, headerCellStyle }"
-      @sort-change="handleSortChange"
     >
       <template v-for="col in columns" :key="col.prop || col.type">
         <!-- 渲染全局序号列 -->
@@ -250,11 +249,6 @@
     scrollToTop() // 页码改变后滚动到表格顶部
   }
 
-  // 排序变化
-  const handleSortChange = (val: { column: any, prop: string, order: string | null }) => {
-    emit('sort-change', val)
-  }
-
   // 滚动表格内容到顶部，并可以联动页面滚动到顶部
   const scrollToTop = () => {
     nextTick(() => {
@@ -273,7 +267,6 @@
   const emit = defineEmits<{
     (e: 'pagination:size-change', val: number): void
     (e: 'pagination:current-change', val: number): void
-    (e: 'sort-change', val: { column: any, prop: string, order: string | null }): void
   }>()
 
   defineExpose({

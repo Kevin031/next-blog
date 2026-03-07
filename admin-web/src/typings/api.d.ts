@@ -193,8 +193,6 @@ declare namespace Api {
     type PostSearchParams = Api.Common.PaginatingSearchParams & {
       tagId?: number
       content_type?: string
-      orderBy?: 'create_time' | 'update_time'
-      orderDirection?: 'ASC' | 'DESC'
     }
 
     interface PostPatchData {

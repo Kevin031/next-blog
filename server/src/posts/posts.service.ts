@@ -53,15 +53,11 @@ export class PostsService {
     current?: number;
     size?: number;
     tagId?: number;
-    orderBy?: 'create_time' | 'update_time';
-    orderDirection?: 'ASC' | 'DESC';
   }): Promise<PostsRo> {
     // 兼容两种分页参数格式：page/pageSize 和 current/size
     const page = params.page ?? params.current ?? 1;
     const pageSize = params.pageSize ?? params.size ?? 10;
     const tagId = params.tagId;
-    const orderBy = params.orderBy ?? 'create_time';
-    const orderDirection = params.orderDirection ?? 'DESC';
 
     // 构建查询条件
     const queryBuilder = this.postRepository
@@ -69,7 +65,7 @@ export class PostsService {
       .leftJoinAndSelect('post.tags', 'tag')
       .skip((page - 1) * pageSize)
       .take(pageSize)
-      .orderBy(`post.${orderBy}`, orderDirection);
+      .orderBy('post.create_time', 'DESC');
 
     // 如果有标签筛选条件
     if (tagId) {
