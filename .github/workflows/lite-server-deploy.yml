@@ -1,21 +1,21 @@
-name: Server Deploy
+name: Lite Server Deploy
 
 on:
   push:
     branches:
       - main
     paths:
-      - "server/**"
+      - "lite-server/**"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: server
+        working-directory: lite-server
 
     env:
-      IMAGE_NAME: crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com/kevinlau/blog-server:latest
+      IMAGE_NAME: crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com/kevinlau/blog-lite-server:latest
 
     steps:
       - name: Checkout code
@@ -26,29 +26,16 @@ jobs:
         with:
           bun-version: latest
 
-      # - name: Create .env.prod file from GitHub Secrets
-      #   run: |
-      #     echo "NODE_ENV=production" >> .env
-      #     echo "DB_HOST=${{ secrets.SERVER_HOST }}" >> .env
-      #     echo "DB_PORT=3306" >> .env
-      #     echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-      #     echo "DB_PASSWD=${{ secrets.DB_PASSWD }}" >> .env
-      #     echo "DB_DATABASE=blog" >> .env
-      #     echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-      #     echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
-
       - name: Build Docker Image
         run: |
-          # 构建多架构镜像以提高兼容性
           docker build -t $IMAGE_NAME .
-          # 压缩镜像层以减少推送时间
           docker image prune -f
 
       - name: Login to Aliyun
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com
 
-      - name: Push Docker Image with retry
+      - name: Push Docker Image
         run: |
           docker push $IMAGE_NAME
 
@@ -57,7 +44,7 @@ jobs:
     needs: build
 
     env:
-      IMAGE_NAME: crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com/kevinlau/blog-server:latest
+      IMAGE_NAME: crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com/kevinlau/blog-lite-server:latest
 
     steps:
       - name: SSH to server and deploy
@@ -67,9 +54,8 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            IMAGE_NAME="crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com/kevinlau/blog-server:latest"
+            IMAGE_NAME="crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com/kevinlau/blog-lite-server:latest"
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin crpi-ixqtkyv5jyilbxg5.cn-guangzhou.personal.cr.aliyuncs.com
             docker pull $IMAGE_NAME
-            docker ps -q --filter "name=blog-server" | grep -q . && docker stop blog-server || echo "Container blog-server is not running"
-            docker ps -a -q --filter "name=blog-server" | grep -q . && docker rm blog-server || echo "Container blog-server does not exist"
-            docker run -d --name blog-server -v /www/wwwroot/blog-server.kevinlau.cn/.env:/app/.env -p 20238:3000 $IMAGE_NAME
+            docker rm -f blog-lite-server 2>/dev/null || echo "Container blog-lite-server removed or does not exist"
+            docker run -d --name blog-lite-server -v /www/wwwroot/lite-server.kevinlau.cn/.env:/app/.env -p 20239:3001 $IMAGE_NAME
