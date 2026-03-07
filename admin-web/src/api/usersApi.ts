@@ -21,14 +21,38 @@ export class UserService {
     })
   }
 
-  // 获取用户列表
-  static getUserList(params: Api.Common.PaginatingSearchParams) {
+  // 获取用户列表（含认证信息，支持搜索筛选）
+  static getUserList(params: Api.User.UserSearchParams) {
     return request.get<Api.User.UserListData>({
-      url: '/user/list',
+      url: '/user/with-auth',
       params
     })
   }
 
+  // 创建用户（管理员）
+  static createUser(data: Api.User.CreateUserParams) {
+    return request.post({
+      url: '/user',
+      data
+    })
+  }
+
+  // 更新用户信息
+  static updateUser(id: number, data: Api.User.UpdateUserParams) {
+    return request.patch({
+      url: `/user/${id}`,
+      data
+    })
+  }
+
+  // 删除用户
+  static deleteUser(id: number) {
+    return request.del({
+      url: `/user/${id}`
+    })
+  }
+
+  // 用户注册（公开接口）
   static signup(data: Api.Auth.SignupParams) {
     return request.post<Api.Auth.SignupResponse>({
       url: '/auth/signup',

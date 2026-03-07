@@ -63,11 +63,10 @@
 
   // 搜索表单
   const searchForm = ref({
-    name: undefined,
-    level: 'vip',
-    date: undefined,
-    daterange: undefined,
-    status: undefined
+    search: undefined, // 模糊搜索（用户名、昵称、邮箱）
+    phone: undefined, // 手机号
+    status: undefined, // 状态
+    daterange: undefined // 日期范围
   })
 
   // 用户状态配置
@@ -172,10 +171,18 @@
             h('div', [
               h(ArtButtonTable, {
                 type: 'edit',
-                onClick: () => showDialog('edit', row)
+                disabled: !row.auth, // 没有 auth 信息时禁用编辑
+                onClick: () => {
+                  if (row.auth) {
+                    showDialog('edit', row)
+                  } else {
+                    ElMessage.warning('该用户没有认证信息，无法编辑')
+                  }
+                }
               }),
               h(ArtButtonTable, {
                 type: 'delete',
+                disabled: row.auth?.username === 'admin', // 超级管理员禁用删除
                 onClick: () => deleteUser(row)
               })
             ])
@@ -232,15 +239,32 @@
   /**
    * 删除用户
    */
-  const deleteUser = (row: UserListItem): void => {
-    console.log('删除用户:', row)
-    ElMessageBox.confirm(`确定要注销该用户吗？`, '注销用户', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'error'
-    }).then(() => {
-      ElMessage.success('注销成功')
-    })
+  const deleteUser = async (row: UserListItem): Promise<void> => {
+    try {
+      // 检查是否是超级管理员
+      if (row.auth?.username === 'admin') {
+        ElMessage.warning('超级管理员不允许删除')
+        return
+      }
+
+      await ElMessageBox.confirm(
+        `确定要删除用户 "${row.nickname || row.auth?.username}" 吗？`,
+        '删除用户',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+
+      await UserService.deleteUser(row.id)
+      ElMessage.success('删除成功')
+      refreshData()
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败:', error)
+      }
+    }
   }
 
   /**

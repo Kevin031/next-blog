@@ -106,7 +106,6 @@ async function createSuperAdmin() {
     console.log('1. 请妥善保管以上凭据');
     console.log('2. 首次登录后建议立即修改密码');
     console.log('3. 请勿将凭据提交到版本控制系统\n');
-
   } catch (error) {
     console.error('❌ 创建超级管理员失败:', error.message);
     if (error.detail) {

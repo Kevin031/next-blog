@@ -24,7 +24,7 @@ function validateEnv() {
   if (missing.length > 0) {
     throw new Error(
       `❌ 缺少必需的环境变量: ${missing.join(', ')}\n` +
-        `请检查 .env 文件或参考 .env.example 配置环境变量。`
+        `请检查 .env 文件或参考 .env.example 配置环境变量。`,
     );
   }
 
@@ -34,7 +34,7 @@ function validateEnv() {
     console.warn(
       '⚠️  警告: JWT_SECRET 长度不足 32 个字符\n' +
         `当前长度: ${jwtSecret.length}\n` +
-        '建议使用: openssl rand -base64 32 生成强密钥以提高安全性'
+        '建议使用: openssl rand -base64 32 生成强密钥以提高安全性',
     );
   }
 

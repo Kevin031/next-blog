@@ -106,11 +106,11 @@ export class PostsService {
     const { tagIds } = updatePostDto as any;
     if (tagIds !== undefined) {
       // 获取旧标签 ID
-      const oldTagIds = existPost.tags?.map(tag => tag.id) || [];
+      const oldTagIds = existPost.tags?.map((tag) => tag.id) || [];
 
       // 计算需要增加和减少的标签
       const newTags = tagIds.filter((id: number) => !oldTagIds.includes(id));
-      const removedTags = oldTagIds.filter(id => !tagIds.includes(id));
+      const removedTags = oldTagIds.filter((id) => !tagIds.includes(id));
 
       // 更新标签 count
       if (newTags.length > 0) {
@@ -140,7 +140,7 @@ export class PostsService {
 
     // 减少相关标签的 count
     if (existPost.tags && existPost.tags.length > 0) {
-      const tagIds = existPost.tags.map(tag => tag.id);
+      const tagIds = existPost.tags.map((tag) => tag.id);
       await this.updateTagsCount(tagIds, -1);
     }
 

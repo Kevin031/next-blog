@@ -68,23 +68,6 @@
                 show-password
               />
             </ElFormItem>
-            <div class="drag-verify">
-              <div class="drag-verify-content" :class="{ error: !isPassing && isClickPass }">
-                <ArtDragVerify
-                  ref="dragVerify"
-                  v-model:value="isPassing"
-                  :text="$t('login.sliderText')"
-                  textColor="var(--art-gray-800)"
-                  :successText="$t('login.sliderSuccessText')"
-                  :progressBarBg="getCssVar('--el-color-primary')"
-                  background="var(--art-gray-200)"
-                  handlerBg="var(--art-main-bg-color)"
-                />
-              </div>
-              <p class="error-text" :class="{ 'show-error-text': !isPassing && isClickPass }">{{
-                $t('login.placeholder[2]')
-              }}</p>
-            </div>
 
             <div class="forget-password">
               <ElCheckbox v-model="formData.rememberPassword">{{
@@ -130,7 +113,6 @@
   import { HttpError } from '@/utils/http/error'
   import { themeAnimation } from '@/utils/theme/animation'
   import { UserService } from '@/api/usersApi'
-  import sha256 from 'crypto-js/sha256'
 
   defineOptions({ name: 'Login' })
 
@@ -180,12 +162,8 @@
   const settingStore = useSettingStore()
   const { isDark } = storeToRefs(settingStore)
 
-  const dragVerify = ref()
-
   const userStore = useUserStore()
   const router = useRouter()
-  const isPassing = ref(false)
-  const isClickPass = ref(false)
 
   const systemName = AppConfig.systemInfo.name
   const formRef = ref<FormInstance>()
@@ -225,12 +203,6 @@
       const valid = await formRef.value.validate()
       if (!valid) return
 
-      // 拖拽验证
-      if (!isPassing.value) {
-        isClickPass.value = true
-        return
-      }
-
       loading.value = true
 
       // 登录请求
@@ -238,7 +210,7 @@
 
       const { token, refreshToken } = await UserService.login({
         username,
-        password: sha256('a123568974').toString()
+        password  // 直接发送明文密码，后端使用 bcrypt 验证
       })
 
       // 验证token
@@ -266,13 +238,7 @@
       }
     } finally {
       loading.value = false
-      resetDragVerify()
     }
-  }
-
-  // 重置拖拽验证
-  const resetDragVerify = () => {
-    dragVerify.value.reset()
   }
 
   // 登录成功提示

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { QueryUserDto } from './dto/query-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthEntity } from '../auth/entities/auth.entity';
@@ -20,15 +21,50 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const { username, password, email, ...userData } = createUserDto;
+
+    // 检查用户名是否已存在
+    const existingAuth = await this.authRepository.findOne({
+      where: { username },
+    });
+
+    if (existingAuth) {
+      throw new BadRequestException('用户名已存在');
+    }
+
     try {
-      const user = this.userRepository.create(createUserDto);
+      // 1. 创建 Auth 记录（密码已前端加密）
+      const auth = this.authRepository.create({
+        username,
+        password, // 前端已使用 sha256 加密
+        email: email || null,
+        isActive: true,
+      });
+      const savedAuth = await this.authRepository.save(auth);
+
+      // 2. 创建 User 记录并关联 Auth
+      const user = this.userRepository.create({
+        ...userData,
+        auth: savedAuth,
+        status: userData.status || 'active',
+      });
       const savedUser = await this.userRepository.save(user);
+
       return {
-        message: '用户信息创建成功',
-        data: savedUser,
+        message: '用户创建成功',
+        data: {
+          id: savedUser.id,
+          ...savedUser,
+          auth: {
+            id: savedAuth.id,
+            username: savedAuth.username,
+            email: savedAuth.email,
+            createdAt: savedAuth.createdAt,
+          },
+        },
       };
     } catch (error) {
-      throw new BadRequestException('创建用户信息失败');
+      throw new BadRequestException('创建用户失败');
     }
   }
 
@@ -180,17 +216,16 @@ export class UserService {
     }
   }
 
-  async getUsersWithAuth({
-    page = 1,
-    pageSize = 10,
-    status,
-    search,
-  }: {
-    page: number;
-    pageSize: number;
-    status?: string;
-    search?: string;
-  }) {
+  async getUsersWithAuth(query: QueryUserDto) {
+    const {
+      page = 1,
+      pageSize = 10,
+      status,
+      search,
+      phone,
+      startTime,
+      endTime,
+    } = query;
     const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.auth', 'auth');
@@ -206,6 +241,23 @@ export class UserService {
         '(user.nickname LIKE :search OR auth.username LIKE :search OR auth.email LIKE :search)',
         { search: `%${search}%` },
       );
+    }
+
+    // 手机号精确搜索
+    if (phone) {
+      queryBuilder.andWhere('user.phone = :phone', { phone });
+    }
+
+    // 创建时间范围筛选
+    if (startTime) {
+      queryBuilder.andWhere('user.createdAt >= :startTime', {
+        startTime: new Date(startTime),
+      });
+    }
+    if (endTime) {
+      queryBuilder.andWhere('user.createdAt <= :endTime', {
+        endTime: new Date(endTime + ' 23:59:59'),
+      });
     }
 
     const [list, totalCount] = await queryBuilder

@@ -7,7 +7,6 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { AuthEntity } from '../../auth/entities/auth.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -48,8 +47,8 @@ export class UserEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // 与 AuthEntity 建立一对一关联
-  @OneToOne(() => AuthEntity, (auth) => auth.user, { cascade: true })
+  // 与 AuthEntity 建立一对一关联 - 使用字符串避免循环依赖
+  @OneToOne('AuthEntity', 'user', { cascade: true, eager: false })
   @JoinColumn()
-  auth: AuthEntity;
+  auth: any;
 }

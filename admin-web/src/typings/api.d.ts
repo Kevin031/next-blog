@@ -105,6 +105,41 @@ declare namespace Api {
         createdAt: string
       } | null
     }
+
+    /** 创建用户参数 */
+    interface CreateUserParams {
+      username: string
+      password: string
+      email?: string
+      nickname?: string
+      phone?: string
+      gender?: 'male' | 'female' | 'other'
+      bio?: string
+      location?: string
+      avatar?: string
+      birthday?: string
+    }
+
+    /** 更新用户参数 */
+    interface UpdateUserParams {
+      nickname?: string
+      phone?: string
+      gender?: 'male' | 'female' | 'other'
+      bio?: string
+      location?: string
+      avatar?: string
+      birthday?: string
+      status?: 'active' | 'inactive' | 'banned'
+    }
+
+    /** 用户搜索参数 */
+    type UserSearchParams = Api.Common.PaginatingSearchParams & {
+      status?: 'active' | 'inactive' | 'banned'
+      search?: string
+      phone?: string
+      startTime?: string
+      endTime?: string
+    }
   }
 
   namespace Post {
