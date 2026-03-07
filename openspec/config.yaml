@@ -1,0 +1,32 @@
+schema: spec-driven
+
+# 项目上下文
+# 在创建工件时向 AI 显示此信息。
+# 添加您的技术栈、约定、风格指南、领域知识等。
+context: |
+  技术栈：Bun 1.2.4, TypeScript, Turbo, Vue 3, Vite, Element Plus, NestJS, TypeORM, MySQL, Hono
+  前端：Vue 3 管理后台使用 Element Plus UI 框架，Pinia 状态管理，按需自动导入
+  后端：NestJS 后端 API，TypeORM + MySQL 数据库，JWT + Passport 认证
+  约定：
+    - 使用约定式提交 (Conventional Commits)
+    - 优先使用中文进行沟通、代码注释、文档和说明
+    - 变量名、函数名、类名等技术术语保持英文
+    - 使用 ESLint + Prettier 进行代码检查
+    - 提交前运行 lint-staged 进行代码检查
+  领域：博客系统，包含文章管理、用户认证、标签系统等功能
+  工作区结构：
+    - admin-web: Vue 3 管理后台 (端口 5173)
+    - server: NestJS 后端 API (端口 3000)
+    - lite-server: Hono 轻量级服务 (端口 3001)
+
+# 每个工件的规则
+# 为特定工件添加自定义规则。
+rules:
+  proposal:
+    - 保持提案简洁清晰，重点说明变更的目的和范围
+    - 包含技术栈选择理由
+    - 考虑与现有系统的集成方式
+  tasks:
+    - 将任务分解为可独立完成的单元
+    - 每个任务包含明确的验收标准
+    - 优先考虑向后兼容性
