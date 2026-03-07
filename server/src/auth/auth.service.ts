@@ -117,14 +117,16 @@ export class AuthService {
     await this.updateLastLogin(findUser.username);
 
     const payload = { username: findUser.username };
+    const token = this.jwtService.sign(payload);
+
+    // 生成 refresh token（过期时间更长）
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+    });
+
     return {
-      token: this.jwtService.sign(payload),
-      msg: '登录成功',
-      userInfo: {
-        id: findUser.id,
-        username: findUser.username,
-        email: findUser.email,
-      },
+      token,
+      refreshToken,
     };
   }
 
@@ -139,28 +141,13 @@ export class AuthService {
     }
 
     return {
+      userId: userInfo.id,
       username: userInfo.username,
       roles: userInfo.roles,
-      id: userInfo.id,
+      buttons: [], // 按钮权限，暂时返回空数组，后续可以根据角色动态计算
       email: userInfo.email,
-      isActive: userInfo.isActive,
-      lastLoginAt: userInfo.lastLoginAt,
-      user: userInfo.user
-        ? {
-            id: userInfo.user.id,
-            nickname: userInfo.user.nickname,
-            email: userInfo.user.email,
-            phone: userInfo.user.phone,
-            avatar: userInfo.user.avatar,
-            bio: userInfo.user.bio,
-            gender: userInfo.user.gender,
-            birthday: userInfo.user.birthday,
-            location: userInfo.user.location,
-            status: userInfo.user.status,
-            createdAt: userInfo.user.createdAt,
-            updatedAt: userInfo.user.updatedAt,
-          }
-        : null,
+      phone: userInfo.user?.phone,
+      avatar: userInfo.user?.avatar,
     };
   }
 

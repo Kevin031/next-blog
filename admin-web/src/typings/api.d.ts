@@ -66,13 +66,28 @@ declare namespace Api {
   namespace User {
     /** 用户信息 */
     interface UserInfo {
-      userId: number
+      id: number
       username: string
       roles: string[]
-      buttons: string[]
+      buttons?: string[]
       avatar?: string
       email?: string
       phone?: string
+      isActive?: boolean
+      lastLoginAt?: string
+      user?: {
+        id: number
+        nickname: string
+        phone: string | null
+        avatar: string | null
+        bio: string | null
+        gender: 'male' | 'female' | 'other' | null
+        birthday: string | null
+        location: string | null
+        status: 'active' | 'inactive' | 'banned'
+        createdAt: string
+        updatedAt: string
+      }
     }
 
     /** 用户列表数据 */
@@ -178,6 +193,8 @@ declare namespace Api {
     type PostSearchParams = Api.Common.PaginatingSearchParams & {
       tagId?: number
       content_type?: string
+      orderBy?: 'create_time' | 'update_time'
+      orderDirection?: 'ASC' | 'DESC'
     }
 
     interface PostPatchData {

@@ -17,7 +17,14 @@
           <ElButton v-ripple @click="router.push('/posts/create')">新建文章</ElButton>
         </template>
       </ArtTableHeader>
-      <ArtTable :loading="loading" :data="data" :columns="columns" :pagination="pagination" />
+      <ArtTable
+        :loading="loading"
+        :data="data"
+        :columns="columns"
+        :pagination="pagination"
+        :default-sort="{ prop: sortConfig.prop, order: sortConfig.order }"
+        @sort-change="handleSortChange"
+      />
     </ElCard>
   </div>
 </template>
@@ -38,6 +45,12 @@
 
   const { getPostList } = PostService
   const { getTagList } = TagService
+
+  // 排序配置
+  const sortConfig = ref({
+    prop: 'create_time' as 'create_time' | 'update_time',
+    order: 'descending' as 'ascending' | 'descending' | null
+  })
 
   // 所有标签列表
   const allTags = ref<Api.Tag.TagItem[]>([])
@@ -105,6 +118,23 @@
 
   // 重置处理
   const handleReset = () => {
+    searchForm.value.tagId = undefined
+    // 重置排序到默认值
+    sortConfig.value = { prop: 'create_time', order: 'descending' }
+    refreshUpdate()
+  }
+
+  // 排序处理
+  const handleSortChange = ({ prop, order }: { prop: string, order: string | null }) => {
+    if (!prop || !order) {
+      // 取消排序，恢复默认
+      sortConfig.value = { prop: 'create_time', order: 'descending' }
+    } else {
+      sortConfig.value = {
+        prop: prop as 'create_time' | 'update_time',
+        order: order as 'ascending' | 'descending'
+      }
+    }
     refreshUpdate()
   }
 
@@ -115,8 +145,10 @@
         apiParams: computed(() => ({
           current: 1,
           size: 20,
-          tagId: searchForm.value.tagId
-        })),
+          tagId: searchForm.value.tagId,
+          orderBy: sortConfig.value.prop,
+          orderDirection: sortConfig.value.order === 'ascending' ? 'ASC' : 'DESC'
+        })) as any,
         columnsFactory: () => [
           {
             type: 'index',
@@ -161,15 +193,25 @@
             width: 100,
             formatter: (row) => {
               const typeConfig = row.content_type === 'markdown'
-                ? { type: 'primary' as const, text: 'MD' }
-                : { type: 'success' as const, text: '富文本' }
+                ? { type: 'info' as const, text: 'MD' }
+                : { type: 'info' as const, text: '富文本' }
               return h(ElTag, { type: typeConfig.type, size: 'small' }, () => typeConfig.text)
+            }
+          },
+          {
+            prop: 'create_time',
+            label: '创建时间',
+            width: 180,
+            sortable: true,
+            formatter: (row) => {
+              return dayjs(row.create_time).format('YYYY-MM-DD HH:mm:ss')
             }
           },
           {
             prop: 'update_time',
             label: '更新时间',
             width: 180,
+            sortable: true,
             formatter: (row) => {
               return dayjs(row.update_time).format('YYYY-MM-DD HH:mm:ss')
             }

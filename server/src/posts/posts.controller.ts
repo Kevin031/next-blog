@@ -13,6 +13,7 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { GetPostsDto } from './dto/get-posts.dto';
 import {
   ApiOperation,
   ApiTags,
@@ -64,6 +65,20 @@ export class PostsController {
     required: false,
     description: '标签ID，用于筛选该标签下的文章',
   })
+  @ApiQuery({
+    name: 'orderBy',
+    type: String,
+    required: false,
+    description: '排序字段：create_time（创建时间）或 update_time（更新时间）',
+    enum: ['create_time', 'update_time'],
+  })
+  @ApiQuery({
+    name: 'orderDirection',
+    type: String,
+    required: false,
+    description: '排序方向：ASC（升序）或 DESC（降序）',
+    enum: ['ASC', 'DESC'],
+  })
   @ApiOkResponse({
     description: '成功获取文章列表',
     type: GetPostDto,
@@ -71,7 +86,7 @@ export class PostsController {
   })
   @Get()
   @Public()
-  findAll(@Query() query): Promise<PostsRo> {
+  findAll(@Query() query: GetPostsDto): Promise<PostsRo> {
     return this.postsService.findAll(query);
   }
 

@@ -22,7 +22,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.dashboard.title',
       icon: '&#xe721;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
     },
     children: [
       {
@@ -44,7 +44,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: '文章管理',
       icon: '&#xe70f;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
     },
     children: [
       {
@@ -54,7 +54,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: '文章列表',
           keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN']
+          roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
         }
       },
       {
@@ -64,7 +64,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           isHide: true,
           title: '文章编辑',
-          roles: ['R_SUPER', 'R_ADMIN']
+          roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
         }
       },
       {
@@ -74,7 +74,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           isHide: true,
           title: '文章编辑',
-          roles: ['R_SUPER', 'R_ADMIN']
+          roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
         }
       }
     ]
@@ -86,7 +86,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: '标签管理',
       icon: '&#xe737;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
     },
     children: [
       {
@@ -96,7 +96,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: '标签列表',
           keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN']
+          roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
         }
       }
     ]
@@ -108,7 +108,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.system.title',
       icon: '&#xe7b9;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
     },
     children: [
       {
@@ -118,7 +118,7 @@ export const asyncRoutes: AppRouteRecord[] = [
         meta: {
           title: 'menus.system.user',
           keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN']
+          roles: ['R_SUPER', 'R_ADMIN', 'R_USER']
         }
       },
       {
