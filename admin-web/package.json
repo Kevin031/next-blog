@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bunx --bun vite --open",
-    "build": "bunx --bun vue-tsc --noEmit && bunx --bun vite build --mode production",
+    "build": "NODE_ENV=production bunx --bun vue-tsc --noEmit && NODE_ENV=production bunx --bun vite build",
     "serve": "bunx --bun vite preview",
     "lint": "eslint",
     "fix": "eslint --fix",
