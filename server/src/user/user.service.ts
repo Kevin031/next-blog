@@ -37,7 +37,7 @@ export class UserService {
       const auth = this.authRepository.create({
         username,
         password, // 前端已使用 sha256 加密
-        email: email || null,
+        email: email || undefined,
         isActive: true,
       });
       const savedAuth = await this.authRepository.save(auth);
@@ -53,7 +53,6 @@ export class UserService {
       return {
         message: '用户创建成功',
         data: {
-          id: savedUser.id,
           ...savedUser,
           auth: {
             id: savedAuth.id,
