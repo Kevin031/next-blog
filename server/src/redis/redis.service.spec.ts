@@ -1,6 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RedisService } from './redis.service';
 
+jest.mock('ioredis', () => {
+  const mockRedis = {
+    get: jest.fn(),
+    set: jest.fn(),
+    quit: jest.fn(),
+  };
+  return {
+    __esModule: true,
+    default: jest.fn(() => mockRedis),
+  };
+});
+
 describe('RedisService', () => {
   let service: RedisService;
 
