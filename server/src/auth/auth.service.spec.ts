@@ -256,4 +256,225 @@ describe('AuthService', () => {
       });
     });
   });
+
+  describe('signup', () => {
+    const mockSignupData = {
+      username: 'newuser',
+      password: 'password123',
+      email: 'newuser@example.com',
+    };
+
+    const mockSignupDataWithoutEmail = {
+      username: 'newuser',
+      password: 'password123',
+    };
+
+    beforeEach(() => {
+      (bcryptjs.hashSync as jest.Mock).mockReturnValue('hashed_password');
+    });
+
+    describe('成功注册新用户', () => {
+      it('应该成功创建包含 email 的用户', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        mockQueryRunner.manager.save
+          .mockResolvedValueOnce({
+            id: 1,
+            username: mockSignupData.username,
+            email: mockSignupData.email,
+          })
+          .mockResolvedValueOnce({
+            nickname: mockSignupData.username,
+          });
+
+        const result = await service.signup(mockSignupData);
+
+        expect(result).toEqual({
+          message: '注册成功',
+          userInfo: {
+            id: 1,
+            username: 'newuser',
+            email: 'newuser@example.com',
+          },
+        });
+
+        expect(mockQueryRunner.connect).toHaveBeenCalled();
+        expect(mockQueryRunner.startTransaction).toHaveBeenCalled();
+        expect(mockQueryRunner.manager.save).toHaveBeenCalledTimes(2);
+        expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
+        expect(mockQueryRunner.release).toHaveBeenCalled();
+        expect(bcryptjs.hashSync).toHaveBeenCalledWith('password123', 10);
+      });
+
+      it('应该成功创建不包含 email 的用户', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        mockQueryRunner.manager.save
+          .mockResolvedValueOnce({
+            id: 1,
+            username: mockSignupDataWithoutEmail.username,
+            email: undefined,
+          })
+          .mockResolvedValueOnce({
+            nickname: mockSignupDataWithoutEmail.username,
+          });
+
+        const result = await service.signup(mockSignupDataWithoutEmail);
+
+        expect(result).toEqual({
+          message: '注册成功',
+          userInfo: {
+            id: 1,
+            username: 'newuser',
+            email: undefined,
+          },
+        });
+
+        expect(mockQueryRunner.manager.save).toHaveBeenCalledTimes(2);
+        expect(mockQueryRunner.commitTransaction).toHaveBeenCalled();
+      });
+
+      it('应该正确设置默认角色和状态', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        mockQueryRunner.manager.save
+          .mockResolvedValueOnce({
+            id: 1,
+            username: mockSignupData.username,
+          })
+          .mockResolvedValueOnce({});
+
+        await service.signup(mockSignupData);
+
+        const firstSaveCall = mockQueryRunner.manager.save.mock.calls[0][1];
+        expect(firstSaveCall.roles).toEqual(['R_USER']);
+        expect(firstSaveCall.isActive).toBe(true);
+      });
+    });
+
+    describe('用户名已存在', () => {
+      it('应该抛出 BadRequestException', async () => {
+        const existingUser = {
+          id: 1,
+          username: 'existinguser',
+        };
+        mockAuthRepository.findOne.mockResolvedValue(existingUser);
+
+        await expect(service.signup(mockSignupData)).rejects.toThrow(
+          BadRequestException,
+        );
+        await expect(service.signup(mockSignupData)).rejects.toThrow(
+          '用户名已存在',
+        );
+
+        expect(mockQueryRunner.connect).not.toHaveBeenCalled();
+        expect(mockQueryRunner.startTransaction).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('事务处理', () => {
+      it('事务失败时应该回滚', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        mockQueryRunner.manager.save.mockRejectedValue(
+          new Error('Database error'),
+        );
+
+        await expect(service.signup(mockSignupData)).rejects.toThrow(
+          BadRequestException,
+        );
+        await expect(service.signup(mockSignupData)).rejects.toThrow(
+          '注册失败，请重试',
+        );
+
+        expect(mockQueryRunner.rollbackTransaction).toHaveBeenCalled();
+        expect(mockQueryRunner.commitTransaction).not.toHaveBeenCalled();
+        expect(mockQueryRunner.release).toHaveBeenCalled();
+      });
+
+      it('即使回滚失败也应该释放连接', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        mockQueryRunner.manager.save.mockRejectedValue(
+          new Error('Database error'),
+        );
+        mockQueryRunner.rollbackTransaction.mockRejectedValue(
+          new Error('Rollback error'),
+        );
+
+        await expect(service.signup(mockSignupData)).rejects.toThrow();
+
+        expect(mockQueryRunner.release).toHaveBeenCalled();
+      });
+
+      it('应该正确释放 QueryRunner 连接', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        mockQueryRunner.manager.save
+          .mockResolvedValueOnce({ id: 1, username: 'newuser' })
+          .mockResolvedValueOnce({});
+
+        await service.signup(mockSignupData);
+
+        expect(mockQueryRunner.release).toHaveBeenCalled();
+      });
+    });
+
+    describe('密码加密', () => {
+      it('应该使用 bcryptjs 加密密码', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        mockQueryRunner.manager.save
+          .mockResolvedValueOnce({ id: 1, username: 'newuser' })
+          .mockResolvedValueOnce({});
+
+        await service.signup(mockSignupData);
+
+        expect(bcryptjs.hashSync).toHaveBeenCalledWith('password123', 10);
+        const firstSaveCall = mockQueryRunner.manager.save.mock.calls[0][1];
+        expect(firstSaveCall.password).toBe('hashed_password');
+      });
+
+      it('应该使用盐值 10', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        mockQueryRunner.manager.save
+          .mockResolvedValueOnce({ id: 1, username: 'newuser' })
+          .mockResolvedValueOnce({});
+
+        await service.signup(mockSignupData);
+
+        expect(bcryptjs.hashSync).toHaveBeenCalledWith(
+          mockSignupData.password,
+          10,
+        );
+      });
+    });
+
+    describe('可选字段处理', () => {
+      it('email 为空字符串时应该设置为 undefined', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        const dataWithEmptyEmail = {
+          ...mockSignupData,
+          email: '',
+        };
+        mockQueryRunner.manager.save
+          .mockResolvedValueOnce({ id: 1, username: 'newuser' })
+          .mockResolvedValueOnce({});
+
+        await service.signup(dataWithEmptyEmail);
+
+        const authSaveCall = mockQueryRunner.manager.save.mock.calls[0][1];
+        expect(authSaveCall.email).toBeUndefined();
+      });
+
+      it('email 为 null 时应该设置为 undefined', async () => {
+        mockAuthRepository.findOne.mockResolvedValue(null);
+        const dataWithNullEmail = {
+          ...mockSignupData,
+          email: null,
+        };
+        mockQueryRunner.manager.save
+          .mockResolvedValueOnce({ id: 1, username: 'newuser' })
+          .mockResolvedValueOnce({});
+
+        await service.signup(dataWithNullEmail);
+
+        const authSaveCall = mockQueryRunner.manager.save.mock.calls[0][1];
+        expect(authSaveCall.email).toBeUndefined();
+      });
+    });
+  });
 });

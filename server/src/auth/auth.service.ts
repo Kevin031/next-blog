@@ -73,9 +73,6 @@ export class AuthService {
       // 提交事务
       await queryRunner.commitTransaction();
 
-      // 存入 Redis
-      // this.redisService.set(username, encryptedPassword);
-
       return {
         message: '注册成功',
         userInfo: {
@@ -143,7 +140,7 @@ export class AuthService {
   }
 
   async getUser(username: string) {
-    const userInfo: any = await this.authRepository.findOne({
+    const userInfo = await this.authRepository.findOne({
       where: { username },
       relations: ['user'],
     });

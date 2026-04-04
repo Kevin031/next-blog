@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -29,7 +33,7 @@ export class PostsService {
     const { title, tagIds } = post as any;
     const doc = await this.postRepository.findOne({ where: { title } });
     if (doc) {
-      throw new HttpException('文章已存在', 401);
+      throw new ConflictException('文章已存在');
     }
 
     // 处理标签关联
@@ -88,7 +92,7 @@ export class PostsService {
       relations: ['tags'],
     });
     if (!doc) {
-      throw new HttpException('文章不存在', 401);
+      throw new NotFoundException('文章不存在');
     }
     return doc;
   }
@@ -99,7 +103,7 @@ export class PostsService {
       relations: ['tags'],
     });
     if (!existPost) {
-      throw new HttpException('文章不存在', 401);
+      throw new NotFoundException('文章不存在');
     }
 
     // 处理标签变更
@@ -135,7 +139,7 @@ export class PostsService {
       relations: ['tags'],
     });
     if (!existPost) {
-      throw new HttpException('文章不存在', 401);
+      throw new NotFoundException('文章不存在');
     }
 
     // 减少相关标签的 count
