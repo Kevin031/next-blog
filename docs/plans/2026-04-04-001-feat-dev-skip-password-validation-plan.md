@@ -1,7 +1,7 @@
 ---
 title: feat: 开发环境跳过密码验证
 type: feat
-status: active
+status: completed
 date: 2026-04-04
 ---
 
