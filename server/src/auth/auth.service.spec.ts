@@ -91,7 +91,9 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    authRepository = module.get<Repository<AuthEntity>>(getRepositoryToken(AuthEntity));
+    authRepository = module.get<Repository<AuthEntity>>(
+      getRepositoryToken(AuthEntity),
+    );
     configService = module.get<ConfigService>(ConfigService);
     jwtService = module.get<JwtService>(JwtService);
 
@@ -147,7 +149,10 @@ describe('AuthService', () => {
           refreshToken: 'mock-token',
         });
         expect(jwtService.sign).toHaveBeenCalledWith({ username: 'testuser' });
-        expect(jwtService.sign).toHaveBeenCalledWith({ username: 'testuser' }, { expiresIn: '7d' });
+        expect(jwtService.sign).toHaveBeenCalledWith(
+          { username: 'testuser' },
+          { expiresIn: '7d' },
+        );
         expect(bcryptjs.compare).not.toHaveBeenCalled();
       });
 
@@ -158,7 +163,9 @@ describe('AuthService', () => {
 
         await service.login(loginData);
 
-        expect(loggerSpy).toHaveBeenCalledWith('跳过密码验证', { username: 'testuser' });
+        expect(loggerSpy).toHaveBeenCalledWith('跳过密码验证', {
+          username: 'testuser',
+        });
       });
 
       it('用户不存在时应该抛出错误', async () => {
@@ -166,8 +173,12 @@ describe('AuthService', () => {
 
         const loginData = { username: 'nonexistent', password: 'password' };
 
-        await expect(service.login(loginData)).rejects.toThrow(BadRequestException);
-        await expect(service.login(loginData)).rejects.toThrow('用户名或密码错误');
+        await expect(service.login(loginData)).rejects.toThrow(
+          BadRequestException,
+        );
+        await expect(service.login(loginData)).rejects.toThrow(
+          '用户名或密码错误',
+        );
       });
 
       it('用户被禁用时应该抛出错误', async () => {
@@ -176,7 +187,9 @@ describe('AuthService', () => {
 
         const loginData = { username: 'testuser', password: 'password' };
 
-        await expect(service.login(loginData)).rejects.toThrow(BadRequestException);
+        await expect(service.login(loginData)).rejects.toThrow(
+          BadRequestException,
+        );
         await expect(service.login(loginData)).rejects.toThrow('账号已被禁用');
       });
     });
@@ -200,7 +213,10 @@ describe('AuthService', () => {
           token: 'mock-token',
           refreshToken: 'mock-token',
         });
-        expect(bcryptjs.compare).toHaveBeenCalledWith('correctpassword', 'hashedpassword');
+        expect(bcryptjs.compare).toHaveBeenCalledWith(
+          'correctpassword',
+          'hashedpassword',
+        );
       });
 
       it('错误密码应该抛出错误', async () => {
@@ -208,8 +224,12 @@ describe('AuthService', () => {
 
         const loginData = { username: 'testuser', password: 'wrongpassword' };
 
-        await expect(service.login(loginData)).rejects.toThrow(BadRequestException);
-        await expect(service.login(loginData)).rejects.toThrow('用户名或密码错误');
+        await expect(service.login(loginData)).rejects.toThrow(
+          BadRequestException,
+        );
+        await expect(service.login(loginData)).rejects.toThrow(
+          '用户名或密码错误',
+        );
       });
     });
 
@@ -229,7 +249,10 @@ describe('AuthService', () => {
           token: 'mock-token',
           refreshToken: 'mock-token',
         });
-        expect(bcryptjs.compare).toHaveBeenCalledWith('correctpassword', 'hashedpassword');
+        expect(bcryptjs.compare).toHaveBeenCalledWith(
+          'correctpassword',
+          'hashedpassword',
+        );
       });
     });
   });

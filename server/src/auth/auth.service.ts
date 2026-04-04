@@ -109,8 +109,10 @@ export class AuthService {
     }
 
     // 检查是否跳过密码验证（仅开发环境）
-    const skipPasswordValidation =
-      this.configService.get<string>('SKIP_PASSWORD_VALIDATION') === 'true';
+    const skipPasswordValue = this.configService.get<string>(
+      'SKIP_PASSWORD_VALIDATION',
+    );
+    const skipPasswordValidation = skipPasswordValue === 'true';
 
     if (skipPasswordValidation) {
       // 开发环境跳过密码验证，记录警告日志
@@ -137,10 +139,7 @@ export class AuthService {
       expiresIn: '7d',
     });
 
-    return {
-      token,
-      refreshToken,
-    };
+    return { token, refreshToken };
   }
 
   async getUser(username: string) {
