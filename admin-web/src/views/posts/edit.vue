@@ -7,7 +7,7 @@
     v-model:is-full-screen="isFullScreen"
     :all-tags="allTags"
     :is-edit-mode="isEditMode"
-    :loading="submitLoading"
+    :loading="initLoading || submitLoading"
     :highlight="saveButtonHighlight"
     @save="savePost"
   >
@@ -29,6 +29,7 @@
   import PostEditLayout from '@/components/posts/post-edit-layout/index.vue'
 
   const submitLoading = ref(false)
+  const initLoading = ref(false)
   const allTags = ref<Api.Tag.TagItem[]>([])
   const isFullScreen = ref(false)
   const saveButtonHighlight = ref(false)
@@ -79,19 +80,26 @@
 
   const initData = async () => {
     if (!route.params.id) return
-    const res = await getPostDetail(route.params.id as string)
-    console.log(res)
-    formData.value = Object.assign(
-      formData.value,
-      pick(res, ['title', 'content', 'visible', 'tags', 'content_type'])
-    )
-    // 处理标签数据，提取 tagIds
-    if (res.tags && res.tags.length > 0) {
-      formData.value.tagIds = res.tags.map((tag: Api.Tag.TagItem) => tag.id)
-    }
-    // 旧数据兼容：content_type 为空/null 时默认使用富文本
-    if (!formData.value.content_type) {
-      formData.value.content_type = 'rich-text'
+    try {
+      initLoading.value = true
+      const res = await getPostDetail(route.params.id as string)
+      console.log(res)
+      formData.value = Object.assign(
+        formData.value,
+        pick(res, ['title', 'content', 'visible', 'tags', 'content_type'])
+      )
+      // 处理标签数据，提取 tagIds
+      if (res.tags && res.tags.length > 0) {
+        formData.value.tagIds = res.tags.map((tag: Api.Tag.TagItem) => tag.id)
+      }
+      // 旧数据兼容：content_type 为空/null 时默认使用富文本
+      if (!formData.value.content_type) {
+        formData.value.content_type = 'rich-text'
+      }
+    } catch (error) {
+      console.error('获取文章详情失败:', error)
+    } finally {
+      initLoading.value = false
     }
   }
 
