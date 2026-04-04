@@ -1,162 +1,146 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+本文件为 Claude Code 提供项目特定的架构决策和开发约定。
 
-## 项目概述
-
-这是一个基于 [bhvr](https://bhvr.dev) 模板的 TypeScript 全栈 Monorepo 博客系统，使用 Bun 作为运行时和包管理器，Turbo 进行构建编排。
-
-### 技术栈
-
-- **运行时**: Bun 1.2.4
-- **构建编排**: Turbo
-- **前端**: Vue 3 + Vite + Element Plus
-- **后端**: NestJS + TypeORM + MySQL
-- **轻量服务**: Hono (lite-server)
-
-### 工作区结构
+## 项目结构
 
 ```
-├── admin-web/      # Vue 3 管理后台 (Element Plus + Pinia)
-├── server/         # NestJS 后端 API (TypeORM + MySQL + Redis)
-├── lite-server/    # Hono 轻量级服务
+admin-web/      # Vue 3 管理后台
+server/         # NestJS 后端 API
+lite-server/    # Hono 轻量服务
 ```
 
-## 通用命令
+**服务地址**:
+| 服务 | 地址 | 说明 |
+|------|------|------|
+| admin-web | http://localhost:5173 | 管理后台 |
+| server | http://localhost:3000 | API 服务 |
+| swagger | http://localhost:3000/docs | API 文档 |
+| lite-server | http://localhost:3001 | Hono 服务 |
 
-```bash
-# 安装依赖 (使用 Bun)
-bun install
+## 必须遵循
 
-# 开发模式 - 启动所有工作区
-bun run dev
-# 或使用 turbo
-turbo dev
+**认证机制**:
+- 全局 JWT Guard，所有接口默认需要认证
+- 公开接口使用 `@Public()` 装饰器
+- Token 通过 `Authorization: Bearer <token>` 传递
 
-# 单独启动工作区
-bun run dev:admin-web    # 启动管理后台 (默认端口由 .env 决定)
-bun run dev:server       # 启动 NestJS 服务 (默认 3000)
-bun run dev:lite-server  # 启动 Hono 服务
+**环境变量**:
+- `server/.env`: 数据库配置 (DB_HOST, DB_PORT, DB_USER, DB_PASSWD, DB_DATABASE)
+- `admin-web/.env.development`: VITE_PORT, VITE_API_URL, VITE_API_PROXY_URL
+- 敏感信息禁止硬编码，必须使用环境变量
 
-# 构建
-bun run build           # 构建所有工作区
-bun run build:admin-web # 构建管理后台
-bun run build:server    # 构建 NestJS 服务
-bun run build:lite-server # 构建 Hono 服务
+**数据库约定**:
+- TypeORM `synchronize: true` 自动创建表结构
+- 实体位于 `server/src/*/entities/`
+- 实体修改会自动同步到数据库
 
-# 代码检查
-bun run lint           # Lint 所有工作区
-bun run type-check     # TypeScript 类型检查
-bun run test           # 运行测试
-```
-
-## 架构说明
-
-### server (NestJS 后端)
-
-- **入口**: [server/src/main.ts](server/src/main.ts)
-- **模块**: [server/src/app.module.ts](server/src/app.module.ts)
-- **数据库**: TypeORM + MySQL，配置通过环境变量
-  - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWD`, `DB_DATABASE`
-  - `synchronize: true` - 自动根据实体创建表（生产环境建议关闭）
-- **认证**: JWT + Passport
-  - 全局 JWT Guard: [server/src/auth/jwt-auth.grard.ts](server/src/auth/jwt-auth.grard.ts)
-  - 公开接口使用 `@Public()` 装饰器
-- **API 文档**: Swagger，访问 `/docs`
-- **全局拦截器**:
-  - `TransformInterceptor` - 统一响应格式
-  - `HttpExceptionFilter` - 全局错误处理
-
-**NestJS 特定命令**:
-
-```bash
-cd server
-bunx --bun nest start --watch    # 开发模式
-bunx --bun nest build            # 构建
-bun run start:prod               # 生产模式运行构建后的代码
-```
-
-### admin-web (Vue 3 管理后台)
-
-- **入口**: [admin-web/src/main.ts](admin-web/src/main.ts)
-- **路由**: `src/router/` - 使用 `initRouter()` 初始化
-- **状态管理**: `src/store/` - 使用 Pinia
-- **UI 框架**: Element Plus
-- **自动导入**:
-  - 组件自动从 `src/components/` 导入
-  - Vue API 自动导入 (vue, vue-router, pinia, @vueuse/core)
-  - Element Plus 组件按需导入
-
-**路径别名** (在 [vite.config.ts](admin-web/vite.config.ts)):
-
+**路径别名** (admin-web):
 - `@` → `src/`
 - `@views` → `src/views/`
-- `@imgs` → `src/assets/img/`
-- `@icons` → `src/assets/icons/`
 - `@utils` → `src/utils/`
 - `@stores` → `src/store/`
-- `@styles` → `src/assets/styles/`
 
-**开发服务器配置**:
+**代码风格**:
+- ESLint + Prettier 自动格式化
+- admin-web 额外使用 stylelint
+- 提交前自动运行 lint-staged
+- 使用 `bun run commit` 规范化提交
 
-- 端口: `VITE_PORT` (从 .env 读取)
-- API 代理: `/api` → `VITE_API_PROXY_URL`
+**不可变数据**:
+- 始终创建新对象，禁止修改现有对象
+- 使用 spread 操作符进行不可变更新
 
-### lite-server (Hono 轻量服务)
+**错误处理**:
+- 显式处理所有错误
+- 用户友好的错误信息
+- 服务器端记录详细错误上下文
 
-- **入口**: [lite-server/src/index.ts](lite-server/src/index.ts)
-- 使用 Bun 原生运行
-- 热重载: `bun run --hot src/index.ts`
+**输入验证**:
+- 在系统边界验证所有输入
+- 后端使用 class-validator
+- 前端使用 Zod
 
-### 服务地址
+## 反模式
 
-| 服务           | 地址                       | 说明         |
-| -------------- | -------------------------- | ------------ |
-| admin-web      | http://localhost:5173      | Vue 管理后台 |
-| server API     | http://localhost:3000      | NestJS 后端  |
-| server Swagger | http://localhost:3000/docs | API 文档     |
-| lite-server    | http://localhost:3001      | Hono 服务    |
+**禁止使用**:
+- ❌ 硬编码密钥、密码、API Key
+- ❌ 直接修改对象/数组 (mutation)
+- ❌ `any` 类型 (使用 `unknown` + 类型收窄)
+- ❌ `console.log` (使用日志库)
+- ❌ 深层嵌套 (>4 层)
+- ❌ 过长函数 (>50 行)
+- ❌ 生产环境使用 `synchronize: true`
 
-## 环境变量
+**数据库反模式**:
+- ❌ SQL 注入 (使用参数化查询)
+- ❌ N+1 查询 (使用 JOIN 或 batching)
+- ❌ 无限制查询 (添加 LIMIT)
 
-### server/.env
+**安全反模式**:
+- ❌ XSS (未转义用户输入)
+- ❌ CSRF (未启用保护)
 
+## 常用命令
+
+```bash
+# 开发
+bun run dev                    # 启动所有工作区
+bun run dev:admin-web          # 仅启动前端
+bun run dev:server             # 仅启动后端
+
+# 构建
+bun run build                  # 构建所有工作区
+
+# 代码质量
+bun run lint                   # Lint 所有工作区
+bun run type-check             # TypeScript 类型检查
+
+# NestJS 特定
+cd server
+bunx --bun nest start --watch  # 开发模式
+bun run seed:super-admin       # 创建超级管理员
+
+# Git 提交
+bun run commit                 # Commitizen 规范化提交
 ```
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWD=your_password
-DB_DATABASE=blog
-PORT=3000
-```
 
-### admin-web/.env.development
+## 备忘
 
-```
-VITE_PORT=5173
-VITE_API_URL=/api
-VITE_API_PROXY_URL=http://localhost:3000
-VITE_BASE_URL=/
-```
+**自动导入** (admin-web):
+- 组件从 `src/components/` 自动导入
+- Vue API (vue, vue-router, pinia, @vueuse/core) 自动导入
+- Element Plus 组件按需导入
 
-## 数据库实体
+**API 代理** (admin-web):
+- 开发环境: `/api` → `VITE_API_PROXY_URL`
+- 生产环境: 通过 `VITE_API_URL` 配置
 
-当前主要的实体 (位于 `server/src/`):
+**全局拦截器** (server):
+- `TransformInterceptor` - 统一响应格式
+- `HttpExceptionFilter` - 全局错误处理
 
+**主要实体**:
 - `posts/entities/post.entity.ts` - 文章
 - `user/entities/user.entity.ts` - 用户
-- `auth/entities/auth.entity.ts - 认证
+- `auth/entities/auth.entity.ts` - 认证
+- `tags/entities/tag.entity.ts` - 标签
 
-## 认证流程
+**开发环境免密登录**:
+- 通过环境变量 `SKIP_PASSWORD_VALIDATION=true` 启用
+- 启用后，可以使用任意密码登录（用户必须存在且未被禁用）
+- **仅用于开发和测试环境，生产环境必须禁用**
+- 跳过密码验证时会记录警告日志，便于审计
+- 配置位置: `server/.env`
 
-1. 使用 JWT 进行身份验证
-2. 大部分接口需要认证 (全局 JwtAuthGuard)
-3. 使用 `@Public()` 装饰器标记公开接口
-4. Token 通过 `Authorization: Bearer <token>` 传递
+**常见问题**:
+- 端口冲突: 修改 `.env` 中的端口配置
+- 数据库连接失败: 检查环境变量和 MySQL 服务
+- 依赖安装失败: 删除 `node_modules` + `bun.lockb` 重新安装
+- 构建失败: 运行 `bun run type-check` 检查类型错误
 
-## 代码风格
-
-- 使用 ESLint + Prettier
-- admin-web 有额外的 stylelint 配置
-- 提交前会运行 lint-staged
-- 使用 Commitizen 进行规范化提交 (`bun run commit`)
+**调试技巧**:
+- 前端: Vue DevTools (已集成)
+- 后端: NestJS CLI 插件
+- 数据库: TypeORM 查询日志
+- Redis: `redis-cli` 监控

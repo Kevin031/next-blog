@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
@@ -9,11 +9,14 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { RedisService } from '../redis/redis.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { Role } from './entities/auth.entity';
 import crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(AuthEntity)
     private readonly authRepository: Repository<AuthEntity>,
@@ -22,6 +25,7 @@ export class AuthService {
     private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
     private readonly dataSource: DataSource,
+    private readonly configService: ConfigService,
   ) {}
 
   async signup(signupData: CreateAuthDto) {
@@ -104,13 +108,22 @@ export class AuthService {
       throw new BadRequestException('账号已被禁用');
     }
 
-    // 对比密码
-    const compareRes: boolean = await bcryptjs.compare(
-      loginData.password,
-      findUser.password,
-    );
-    if (!compareRes) {
-      throw new BadRequestException('用户名或密码错误');
+    // 检查是否跳过密码验证（仅开发环境）
+    const skipPasswordValidation =
+      this.configService.get<string>('SKIP_PASSWORD_VALIDATION') === 'true';
+
+    if (skipPasswordValidation) {
+      // 开发环境跳过密码验证，记录警告日志
+      this.logger.warn('跳过密码验证', { username: loginData.username });
+    } else {
+      // 生产环境或未设置时，正常验证密码
+      const compareRes: boolean = await bcryptjs.compare(
+        loginData.password,
+        findUser.password,
+      );
+      if (!compareRes) {
+        throw new BadRequestException('用户名或密码错误');
+      }
     }
 
     // 更新最后登录时间
