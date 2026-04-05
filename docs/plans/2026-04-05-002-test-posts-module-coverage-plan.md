@@ -1,7 +1,7 @@
 ---
 title: test: Posts 模块单元测试覆盖
 type: test
-status: active
+status: completed
 date: 2026-04-05
 origin: docs/brainstorms/2026-04-05-post-module-tests-requirements.md
 ---
