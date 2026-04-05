@@ -1,9 +1,11 @@
+import 'reflect-metadata';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostsService } from './posts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { TagEntity } from '../tags/entities/tag.entity';
 import { NotFoundException, ConflictException } from '@nestjs/common';
+import { CreatePostDto } from './dto/create-post.dto';
 
 describe('PostsService', () => {
   let service: PostsService;
@@ -266,7 +268,7 @@ describe('PostsService', () => {
   });
 
   describe('create', () => {
-    const mockCreatePostDto = {
+    const mockCreatePostDto: CreatePostDto = {
       title: '新文章',
       content: '文章内容',
       visible: true,

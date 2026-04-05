@@ -27,10 +27,10 @@ export class PostsService {
   ) {}
 
   async create(
-    post: Partial<PostEntity>,
+    createPostDto: CreatePostDto,
     username: string,
   ): Promise<PostEntity> {
-    const { title, tagIds } = post as any;
+    const { title, tagIds } = createPostDto;
     const doc = await this.postRepository.findOne({ where: { title } });
     if (doc) {
       throw new ConflictException('文章已存在');
@@ -45,7 +45,7 @@ export class PostsService {
     }
 
     return await this.postRepository.save({
-      ...post,
+      ...createPostDto,
       author: username,
       tags,
     });
@@ -107,13 +107,13 @@ export class PostsService {
     }
 
     // 处理标签变更
-    const { tagIds } = updatePostDto as any;
+    const tagIds = updatePostDto.tagIds;
     if (tagIds !== undefined) {
       // 获取旧标签 ID
       const oldTagIds = existPost.tags?.map((tag) => tag.id) || [];
 
       // 计算需要增加和减少的标签
-      const newTags = tagIds.filter((id: number) => !oldTagIds.includes(id));
+      const newTags = tagIds.filter((id) => !oldTagIds.includes(id));
       const removedTags = oldTagIds.filter((id) => !tagIds.includes(id));
 
       // 更新标签 count

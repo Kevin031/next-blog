@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
@@ -159,6 +160,24 @@ describe('PostsController', () => {
       expect(mockPostsService.findAll).toHaveBeenCalledWith(query);
       expect(result).toEqual(expectedResult);
     });
+
+    it('应该支持不传认证 token（公开路由）', async () => {
+      const query = { page: 1, pageSize: 10 };
+      const expectedResult = {
+        list: [mockPost],
+        count: 1,
+        totalPages: 1,
+        currentPage: 1,
+      };
+
+      mockPostsService.findAll.mockResolvedValue(expectedResult);
+
+      // 不设置 req.user，模拟未认证用户
+      const result = await controller.findAll(query);
+
+      expect(result).toEqual(expectedResult);
+      expect(mockPostsService.findAll).toHaveBeenCalledWith(query);
+    });
   });
 
   describe('findById', () => {
@@ -178,6 +197,16 @@ describe('PostsController', () => {
 
       expect(mockPostsService.findById).toHaveBeenCalledWith(42);
       expect(result).toEqual(mockPost);
+    });
+
+    it('应该支持不传认证 token（公开路由）', async () => {
+      mockPostsService.findById.mockResolvedValue(mockPost);
+
+      // 不设置 req.user，模拟未认证用户
+      const result = await controller.findById('1');
+
+      expect(result).toEqual(mockPost);
+      expect(mockPostsService.findById).toHaveBeenCalledWith(1);
     });
   });
 
